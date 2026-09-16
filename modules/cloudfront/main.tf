@@ -1,10 +1,20 @@
+terraform {
+  required_providers {
+    aws = {
+      source = "hashicorp/aws"
+      version = "~> 6.0"
+      configuration_aliases = [aws.us_east_1 ]      
+    }
+  }
+}
+
 locals {
   s3_origin_id = "s3-origin"
 }
 
 resource "aws_acm_certificate" "cert" {
-  provider = aws.us_east_1
-  domain_name = var.sub_domain
+  provider          = aws.us_east_1
+  domain_name       = var.sub_domain
   validation_method = "DNS"
 
   lifecycle {
@@ -24,12 +34,12 @@ data "aws_route53_zone" "root" {
 
 resource "aws_route53_record" "cert_validation" {
   for_each = {
-  for dvo in aws_acm_certificate.cert.domain_validation_options : dvo.domain_name => {
-    name   = dvo.resource_record_name
-    record = dvo.resource_record_value
-    type   = dvo.resource_record_type
+    for dvo in aws_acm_certificate.cert.domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
   }
-}
 
   allow_overwrite = true
   name            = each.value.name
@@ -41,9 +51,9 @@ resource "aws_route53_record" "cert_validation" {
 }
 
 resource "aws_route53_record" "cloudfront" {
-  zone_id  = data.aws_route53_zone.root.zone_id
-  name     = var.sub_domain
-  type     = "A"
+  zone_id = data.aws_route53_zone.root.zone_id
+  name    = var.sub_domain
+  type    = "A"
 
   alias {
     name                   = aws_cloudfront_distribution.s3_distribution.domain_name
@@ -75,9 +85,9 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   aliases = [var.sub_domain]
 
   default_cache_behavior {
-    allowed_methods  = ["GET", "HEAD"]
-    cached_methods   = ["GET", "HEAD"]
-    target_origin_id = local.s3_origin_id
+    allowed_methods        = ["GET", "HEAD"]
+    cached_methods         = ["GET", "HEAD"]
+    target_origin_id       = local.s3_origin_id
     viewer_protocol_policy = "redirect-to-https"
     min_ttl                = 0
     default_ttl            = 3600
@@ -99,19 +109,19 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   }
 
   viewer_certificate {
-    acm_certificate_arn = aws_acm_certificate_validation.cert.certificate_arn
-    ssl_support_method  = "sni-only"
+    acm_certificate_arn      = aws_acm_certificate_validation.cert.certificate_arn
+    ssl_support_method       = "sni-only"
     minimum_protocol_version = "TLSv1.2_2021"
   }
 }
 
 data "aws_iam_policy_document" "origin_policy" {
   statement {
-    sid     = "AllowCloudFrontServicePrincipalRead"
-    effect  = "Allow"
-    actions = ["s3:GetObject"]
+    sid       = "AllowCloudFrontServicePrincipalRead"
+    effect    = "Allow"
+    actions   = ["s3:GetObject"]
     resources = ["${var.main_bucket_arn}/*"]
-  
+
     principals {
       type        = "Service"
       identifiers = ["cloudfront.amazonaws.com"]

@@ -1,6 +1,6 @@
 resource "aws_s3_bucket" "main" {
   bucket = var.bucket_main
-  
+
   tags = merge(var.general_tags, {
     Name = "${var.environment}-resume-main-bucket"
   })
@@ -27,7 +27,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "main" {
 
   rule {
     apply_server_side_encryption_by_default {
-      sse_algorithm     = "AES256"
+      sse_algorithm = "AES256"
     }
   }
 }
