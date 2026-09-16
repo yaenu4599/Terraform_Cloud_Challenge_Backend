@@ -8,7 +8,7 @@ output "main_bucket_name" {
   value       = aws_s3_bucket.main.bucket
 }
 
-output "main_bucket_it" {
+output "main_bucket_id" {
   description = "id of the main bucked to use for other resources"
   value       = aws_s3_bucket.main.id
 }
