@@ -22,10 +22,10 @@ module "cloudfornt" {
   general_tags = local.general_tags
   environment  = var.environment
 
-  main_bucket_arn                  = module.main_bucket_arn
-  main_bucket_name                 = module.main_bucket_name
-  main_bucket_id                   = module.main_bucket_id
-  main_bucket_regional_domain_name = module.main_bucket_regional_domain_name
+  main_bucket_arn                  = module.cloudfornt.main_bucket_arn
+  main_bucket_name                 = module.cloudfornt.main_bucket_name
+  main_bucket_id                   = module.cloudfornt.main_bucket_id
+  main_bucket_regional_domain_name = module.cloudfornt.main_bucket_regional_domain_name
 
   root_domain = var.root_domain
   sub_domain  = var.sub_domain
