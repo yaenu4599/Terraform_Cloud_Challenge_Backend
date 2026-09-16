@@ -31,3 +31,33 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "main" {
     }
   }
 }
+
+resource "aws_s3_object" "index_file" {
+  key    = "index.html"
+  bucket = aws_s3_bucket.main.id
+  source = "${path.module}/index.html"
+}
+
+resource "aws_s3_object" "cer1_png" {
+  key    = "cert1.png"
+  bucket = aws_s3_bucket.main.id
+  source = "${path.module}/cert1.png"
+}
+
+resource "aws_s3_object" "cer2_png" {
+  key    = "cert2.png"
+  bucket = aws_s3_bucket.main.id
+  source = "${path.module}/cert2.png"
+}
+
+resource "aws_s3_object" "cer3_png" {
+  key    = "cert3.png"
+  bucket = aws_s3_bucket.main.id
+  source = "${path.module}/cert3.png"
+}
+
+resource "aws_s3_object" "title_jpg" {
+  key    = "paper.jpg"
+  bucket = aws_s3_bucket.main.id
+  source = "${path.module}/paper.jpg"
+}
