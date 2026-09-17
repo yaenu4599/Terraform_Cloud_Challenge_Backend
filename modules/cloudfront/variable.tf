@@ -44,3 +44,4 @@ variable "sub_domain" {
   description = "currently for testing, to see if the creat process works"
   type        = string
 }
+

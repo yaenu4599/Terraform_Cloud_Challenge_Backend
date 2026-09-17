@@ -20,6 +20,10 @@ resource "aws_acm_certificate" "cert" {
   lifecycle {
     create_before_destroy = true
   }
+
+  tags = merge( var.general_tags, {
+  Name = "cert-${var.sub_domain}"
+  })
 }
 
 resource "aws_acm_certificate_validation" "cert" {
@@ -47,7 +51,6 @@ resource "aws_route53_record" "cert_validation" {
   ttl             = 60
   type            = each.value.type
   zone_id         = data.aws_route53_zone.root.zone_id
-
 }
 
 resource "aws_route53_record" "cloudfront" {
@@ -113,6 +116,10 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     ssl_support_method       = "sni-only"
     minimum_protocol_version = "TLSv1.2_2021"
   }
+
+  tags = merge( var.general_tags, {
+    Name = "s3-distribution-${var.sub_domain}"
+  })
 }
 
 data "aws_iam_policy_document" "origin_policy" {

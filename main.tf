@@ -2,6 +2,7 @@ locals {
   general_tags = {
     ManagedBy   = var.managedby
     Environment = var.environment
+    Project     = "Terraform"
   }
 }
 
@@ -27,8 +28,8 @@ module "cloudfornt" {
   main_bucket_id                   = module.s3.main_bucket_id
   main_bucket_regional_domain_name = module.s3.main_bucket_regional_domain_name
 
-  root_domain = var.root_domain
-  sub_domain  = var.sub_domain
+  root_domain     = var.root_domain
+  sub_domain      = var.sub_domain
 
   providers = {
     aws           = aws

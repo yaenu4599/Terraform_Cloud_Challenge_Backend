@@ -20,3 +20,4 @@ variable "bucket_main" {
   description = "s3 bucked containing the index file and images"
   type        = string
 }
+

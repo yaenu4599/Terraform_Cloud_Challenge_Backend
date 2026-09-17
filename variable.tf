@@ -37,3 +37,4 @@ variable "sub_domain" {
   type        = string
   default     = "test/resume-challange-yannik-hofer.com"
 }
+

@@ -21,7 +21,7 @@ jobs:
   Terraform:
     runs-on: ubuntu-latest
     env: 
-      TF_VAR_bucket_main: ${{ secrets.BUCKET_MAIN }}
+      TF_VAR_bucket_main: ${{ vars.BUCKET_MAIN }}
     steps:
       - name: git clone the repository 
         uses: actions/checkout@v6
