@@ -6,7 +6,7 @@
 <title>Yannik – Resume</title>
 <link rel="icon" type="image/jpeg" href="paper.jpg">
 <script>
-  fetch('https://4k2iiu0z0b.execute-api.eu-central-1.amazonaws.com/ChangeViewCount', {
+  fetch('${api_gateway_url}', {
     method: 'POST'
   })
   .then(res => {

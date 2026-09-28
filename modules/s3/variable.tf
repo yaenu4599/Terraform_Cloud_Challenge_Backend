@@ -21,3 +21,8 @@ variable "bucket_main" {
   type        = string
 }
 
+variable "api_gate_way_url" {
+  description = "URL so that the function can call the api that invokes a lambda"
+  type        = string
+  default     = "NULL"
+}

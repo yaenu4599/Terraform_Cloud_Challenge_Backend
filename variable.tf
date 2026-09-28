@@ -35,6 +35,16 @@ variable "root_domain" {
 variable "sub_domain" {
   description = "currently for testing, to see if the creat process works"
   type        = string
-  default     = "test/resume-challange-yannik-hofer.com"
+  default     = "test2.resume-challange-yannik-hofer.com"
+}
+
+#-------------------------------------------------------------
+# lambda
+#-------------------------------------------------------------
+
+variable "lambda_execution_role_arn" {
+  description = "arn of the manually created iam role for the lambda function"
+  type        = string
+  sensitive   = true
 }
 

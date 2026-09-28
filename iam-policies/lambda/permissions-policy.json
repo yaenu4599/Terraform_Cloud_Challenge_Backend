@@ -1,0 +1,32 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "IncrementVisitorCount",
+      "Effect": "Allow",
+      "Action": "dynamodb:UpdateItem",
+      "Resource": "arn:aws:dynamodb:eu-central-1:<ACCOUNT_ID>:table/dev-WebsiteVisitors",
+      "Condition": {
+        "StringEquals": {
+          "aws:ResourceTag/ManagedBy": "terraform",
+          "aws:ResourceTag/Project": "Terraform-Resume-Challange"
+        }
+      }
+    },
+    {
+      "Sid": "CreateOwnLogGroup",
+      "Effect": "Allow",
+      "Action": "logs:CreateLogGroup",
+      "Resource": "arn:aws:logs:eu-central-1:<ACCOUNT_ID>:log-group:/aws/lambda/dev-visitor-counter:*"
+    },
+    {
+      "Sid": "WriteOwnLogs",
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ],
+      "Resource": "arn:aws:logs:eu-central-1:<ACCOUNT_ID>:log-group:/aws/lambda/dev-visitor-counter:log-stream:*"
+    }
+  ]
+}

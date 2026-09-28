@@ -1,0 +1,5 @@
+# only needed to run the tests, not packaged into the lambda
+# (the lambda runtime already ships boto3)
+boto3
+pytest
+moto[dynamodb]>=5

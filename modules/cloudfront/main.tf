@@ -1,9 +1,9 @@
 terraform {
   required_providers {
     aws = {
-      source = "hashicorp/aws"
-      version = "~> 6.0"
-      configuration_aliases = [aws.us_east_1 ]      
+      source                = "hashicorp/aws"
+      version               = "~> 6.0"
+      configuration_aliases = [aws.us_east_1]
     }
   }
 }
@@ -21,8 +21,8 @@ resource "aws_acm_certificate" "cert" {
     create_before_destroy = true
   }
 
-  tags = merge( var.general_tags, {
-  Name = "cert-${var.sub_domain}"
+  tags = merge(var.general_tags, {
+    Name = "cert-${var.sub_domain}"
   })
 }
 
@@ -82,7 +82,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
 
   enabled             = true
   is_ipv6_enabled     = true
-  comment             = "Some comment"
+  comment             = "distribution for a static website"
   default_root_object = "index.html"
 
   aliases = [var.sub_domain]
@@ -105,6 +105,8 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     }
   }
 
+  price_class = "PriceClass_100"
+
   restrictions {
     geo_restriction {
       restriction_type = "none"
@@ -117,7 +119,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     minimum_protocol_version = "TLSv1.2_2021"
   }
 
-  tags = merge( var.general_tags, {
+  tags = merge(var.general_tags, {
     Name = "s3-distribution-${var.sub_domain}"
   })
 }

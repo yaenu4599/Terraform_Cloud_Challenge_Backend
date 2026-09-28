@@ -18,10 +18,31 @@ permissions:
   contents: read
 
 jobs:
-  Terraform:
+  test:
     runs-on: ubuntu-latest
-    env: 
+    steps:
+      - name: git clone the repository
+        uses: actions/checkout@v6
+
+      - name: setup python (same version as the lambda runtime)
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: modules/lambda/requirements-dev.txt
+
+      - name: install test dependencies
+        run: pip install -r modules/lambda/requirements-dev.txt
+
+      - name: run lambda tests
+        run: pytest modules/lambda/tests -v
+
+  Terraform:
+    needs: test
+    runs-on: ubuntu-latest
+    env:
       TF_VAR_bucket_main: ${{ vars.BUCKET_MAIN }}
+      TF_VAR_lambda_execution_role_arn: ${{ secrets.LAMBDA_EXECUTION_ROLE_ARN }}
     steps:
       - name: git clone the repository 
         uses: actions/checkout@v6

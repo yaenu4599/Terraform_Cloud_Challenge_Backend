@@ -1,0 +1,62 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "Create",
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:CreateTable",
+        "dynamodb:TagResource"
+      ],
+      "Resource": "arn:aws:dynamodb:eu-central-1:<ACCOUNT_ID>:table/*-WebsiteVisitors",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestTag/ManagedBy": "terraform",
+          "aws:RequestTag/Project": "Terraform-Resume-Challange"
+        }
+      }
+    },
+    {
+      "Sid": "ModifyDelete",
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:UpdateTable",
+        "dynamodb:DeleteTable",
+        "dynamodb:TagResource",
+        "dynamodb:UntagResource"
+      ],
+      "Resource": "arn:aws:dynamodb:eu-central-1:<ACCOUNT_ID>:table/*-WebsiteVisitors",
+      "Condition": {
+        "StringEquals": {
+          "aws:ResourceTag/ManagedBy": "terraform",
+          "aws:ResourceTag/Project": "Terraform-Resume-Challange"
+        }
+      }
+    },
+    {
+      "Sid": "ProtectOwnershipTags",
+      "Effect": "Deny",
+      "Action": "dynamodb:UntagResource",
+      "Resource": "*",
+      "Condition": {
+        "ForAnyValue:StringEquals": {
+          "aws:TagKeys": [
+            "ManagedBy",
+            "Project"
+          ]
+        }
+      }
+    },
+    {
+      "Sid": "Describe",
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:DescribeTable",
+        "dynamodb:DescribeContinuousBackups",
+        "dynamodb:DescribeTimeToLive",
+        "dynamodb:ListTagsOfResource"
+      ],
+      "Resource": "arn:aws:dynamodb:eu-central-1:<ACCOUNT_ID>:table/*-WebsiteVisitors"
+    }
+  ]
+}
