@@ -32,42 +32,31 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "main" {
   }
 }
 
-resource "aws_s3_object" "index_file" {
-  key    = "index.html"
+#---------------
+# origin policy
+#---------------
+
+data "aws_iam_policy_document" "origin_policy" {
+  statement {
+    sid       = "AllowCloudFrontServicePrincipalRead"
+    effect    = "Allow"
+    actions   = ["s3:GetObject"]
+    resources = ["${aws_s3_bucket.main.arn}/*"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["cloudfront.amazonaws.com"]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "AWS:SourceArn"
+      values   = [var.cloudfront_arn]
+    }
+  }
+}
+
+resource "aws_s3_bucket_policy" "main" {
   bucket = aws_s3_bucket.main.id
-  content = templatefile("${path.module}/index.html.tftpl", {
-    api_gateway_url = var.api_gate_way_url
-  })
-  content_type = "text/html"
-  etag = md5(templatefile("${path.module}/index.html.tftpl", {
-    api_gateway_url = var.api_gate_way_url
-  }))
-}
-
-resource "aws_s3_object" "cer1_png" {
-  key          = "cert1.png"
-  bucket       = aws_s3_bucket.main.id
-  source       = "${path.module}/cert1.png"
-  content_type = "image/png"
-}
-
-resource "aws_s3_object" "cer2_png" {
-  key          = "cert2.png"
-  bucket       = aws_s3_bucket.main.id
-  source       = "${path.module}/cert2.png"
-  content_type = "image/png"
-}
-
-resource "aws_s3_object" "cer3_png" {
-  key          = "cert3.png"
-  bucket       = aws_s3_bucket.main.id
-  source       = "${path.module}/cert3.png"
-  content_type = "image/png"
-}
-
-resource "aws_s3_object" "title_jpg" {
-  key          = "paper.jpg"
-  bucket       = aws_s3_bucket.main.id
-  source       = "${path.module}/paper.jpg"
-  content_type = "image/jpeg"
+  policy = data.aws_iam_policy_document.origin_policy.json
 }

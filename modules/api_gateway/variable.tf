@@ -16,6 +16,11 @@ variable "environment" {
 # input
 #-------------------------------------------------------------
 
+variable "hosted_zone_root" {
+  description = "wich hosted zone the records should be created"
+  type = string
+}
+
 variable "lambda_invoke_arn" {
   description = "invoke arn of the lambda the api forwards requests to"
   type        = string
@@ -30,3 +35,9 @@ variable "allowed_origins" {
   description = "origins (website domains) allowed to call the api from the browser"
   type        = list(string)
 }
+
+variable "api_sub_domain" {
+  description = "to give the api a specific domain, that it does not change everytime"
+  type        = string
+}
+

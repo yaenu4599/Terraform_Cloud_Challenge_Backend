@@ -1,3 +1,8 @@
+#------------------------------
+# preperation
+#------------------------------
+
+# alias for certification
 terraform {
   required_providers {
     aws = {
@@ -8,11 +13,16 @@ terraform {
   }
 }
 
+# local tag, so i can easly change it. Only 2 resources use it
 locals {
   s3_origin_id = "s3-origin"
 }
 
-resource "aws_acm_certificate" "cert" {
+#--------------------------
+# certification
+#--------------------------
+
+resource "aws_acm_certificate" "cloudfront_cert" {
   provider          = aws.us_east_1
   domain_name       = var.sub_domain
   validation_method = "DNS"
@@ -26,19 +36,19 @@ resource "aws_acm_certificate" "cert" {
   })
 }
 
-resource "aws_acm_certificate_validation" "cert" {
+resource "aws_acm_certificate_validation" "cloudfront_cert_validation" {
   provider                = aws.us_east_1
-  certificate_arn         = aws_acm_certificate.cert.arn
-  validation_record_fqdns = [for r in aws_route53_record.cert_validation : r.fqdn]
+  certificate_arn         = aws_acm_certificate.cloudfront_cert.arn
+  validation_record_fqdns = [for r in aws_route53_record.cloudfront_cert_record : r.fqdn]
 }
 
-data "aws_route53_zone" "root" {
-  name = var.root_domain
-}
+#---------------------
+# domain 
+#----------------------
 
-resource "aws_route53_record" "cert_validation" {
+resource "aws_route53_record" "cloudfront_cert_record" {
   for_each = {
-    for dvo in aws_acm_certificate.cert.domain_validation_options : dvo.domain_name => {
+    for dvo in aws_acm_certificate.cloudfront_cert.domain_validation_options : dvo.domain_name => {
       name   = dvo.resource_record_name
       record = dvo.resource_record_value
       type   = dvo.resource_record_type
@@ -50,11 +60,11 @@ resource "aws_route53_record" "cert_validation" {
   records         = [each.value.record]
   ttl             = 60
   type            = each.value.type
-  zone_id         = data.aws_route53_zone.root.zone_id
+  zone_id         = var.hosted_zone_root
 }
 
 resource "aws_route53_record" "cloudfront" {
-  zone_id = data.aws_route53_zone.root.zone_id
+  zone_id = var.hosted_zone_root
   name    = var.sub_domain
   type    = "A"
 
@@ -65,13 +75,9 @@ resource "aws_route53_record" "cloudfront" {
   }
 }
 
-resource "aws_cloudfront_origin_access_control" "default" {
-  name                              = "oac-${var.sub_domain}"
-  description                       = "s3 oac"
-  origin_access_control_origin_type = "s3"
-  signing_behavior                  = "always"
-  signing_protocol                  = "sigv4"
-}
+#-------------------------------------------
+# cloudfront distribution 
+#--------------------------------------------
 
 resource "aws_cloudfront_distribution" "s3_distribution" {
   origin {
@@ -114,7 +120,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   }
 
   viewer_certificate {
-    acm_certificate_arn      = aws_acm_certificate_validation.cert.certificate_arn
+    acm_certificate_arn      = aws_acm_certificate_validation.cloudfront_cert_validation.certificate_arn
     ssl_support_method       = "sni-only"
     minimum_protocol_version = "TLSv1.2_2021"
   }
@@ -124,28 +130,20 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   })
 }
 
-data "aws_iam_policy_document" "origin_policy" {
-  statement {
-    sid       = "AllowCloudFrontServicePrincipalRead"
-    effect    = "Allow"
-    actions   = ["s3:GetObject"]
-    resources = ["${var.main_bucket_arn}/*"]
-
-    principals {
-      type        = "Service"
-      identifiers = ["cloudfront.amazonaws.com"]
-    }
-
-    condition {
-      test     = "StringEquals"
-      variable = "AWS:SourceArn"
-      values   = [aws_cloudfront_distribution.s3_distribution.arn]
-    }
-  }
+resource "aws_cloudfront_origin_access_control" "default" {
+  name                              = "oac-${var.sub_domain}"
+  description                       = "s3 oac"
+  origin_access_control_origin_type = "s3"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
 }
 
-resource "aws_s3_bucket_policy" "main" {
-  bucket = var.main_bucket_id
-  policy = data.aws_iam_policy_document.origin_policy.json
+resource "aws_ssm_parameter" "cloudfront_id" {
+  name = "/resume/cloudfront_id"
+  type = "String"
+  value = aws_cloudfront_distribution.s3_distribution.id
+  
+  tags = merge( var.general_tags, {
+    Nme = "cloudfront-distrebution-id"
+  })
 }
-

@@ -16,19 +16,9 @@ variable "environment" {
 # input
 #-------------------------------------------------------------
 
-variable "main_bucket_arn" {
-  description = "arn for th maine bucked holding the index"
-  type        = string
-}
-
-variable "main_bucket_name" {
-  description = "arn for th maine bucked holding the index"
-  type        = string
-}
-
-variable "main_bucket_id" {
-  description = " id the main bucked to use for other resources"
-  type        = string
+variable "hosted_zone_root" {
+  description = "wich hosted zone the records should be created"
+  type = string
 }
 
 variable "main_bucket_regional_domain_name" {
@@ -44,4 +34,8 @@ variable "sub_domain" {
   description = "currently for testing, to see if the creat process works"
   type        = string
 }
+
+
+
+
 

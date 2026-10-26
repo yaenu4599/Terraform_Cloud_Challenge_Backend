@@ -38,6 +38,13 @@ variable "sub_domain" {
   default     = "test2.resume-challange-yannik-hofer.com"
 }
 
+variable "api_sub_domain" {
+  description = "to give the api a specific domain, that it does not change everytime"
+  type        = string
+  default     = "api.resume-challange-yannik-hofer.com"
+}
+
+
 #-------------------------------------------------------------
 # lambda
 #-------------------------------------------------------------

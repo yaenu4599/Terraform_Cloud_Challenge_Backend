@@ -1,4 +1,11 @@
+#------------------------------
+# preperation
+#------------------------------
+
 locals {
+
+  hosted_zone_root = data.aws_route53_zone.hosted_zone_root.zone_id
+
   general_tags = {
     ManagedBy   = var.managedby
     Environment = var.environment
@@ -6,6 +13,14 @@ locals {
   }
 }
 
+# my hosted zone for the record and validation
+data "aws_route53_zone" "hosted_zone_root" {
+  name = var.root_domain
+}
+
+#------------------------------
+# modules
+#------------------------------
 
 module "s3" {
   source = "./modules/s3"
@@ -13,24 +28,21 @@ module "s3" {
   general_tags = local.general_tags
   environment  = var.environment
 
-  bucket_main = var.bucket_main
-
-  api_gate_way_url = module.http_api_gateway.api_visitors_url
+  bucket_main    = var.bucket_main
+  cloudfront_arn = module.cloudfront.cloudfront_arn
 }
 
-module "cloudfornt" {
+module "cloudfront" {
   source = "./modules/cloudfront"
 
   general_tags = local.general_tags
   environment  = var.environment
 
-  main_bucket_arn                  = module.s3.main_bucket_arn
-  main_bucket_name                 = module.s3.main_bucket_name
-  main_bucket_id                   = module.s3.main_bucket_id
   main_bucket_regional_domain_name = module.s3.main_bucket_regional_domain_name
 
-  root_domain = var.root_domain
-  sub_domain  = var.sub_domain
+  hosted_zone_root = local.hosted_zone_root
+  root_domain      = var.root_domain
+  sub_domain       = var.sub_domain
 
   providers = {
     aws           = aws
@@ -61,7 +73,9 @@ module "http_api_gateway" {
   general_tags = local.general_tags
   environment  = var.environment
 
+  hosted_zone_root     = local.hosted_zone_root
   lambda_invoke_arn    = module.lambda.lambda_invoke_arn
   lambda_function_name = module.lambda.lambda_function_name
   allowed_origins      = ["https://${var.sub_domain}"]
+  api_sub_domain       = var.api_sub_domain
 }
